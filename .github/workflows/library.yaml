@@ -1,7 +1,10 @@
 name: Go CI
 
 on:
-  pull_request
+  pull_request:
+    branches: [main dev]
+  push:
+    branches: [main, dev]
 
 env:
   ACTIONS_STEP_DEBUG: true
