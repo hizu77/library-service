@@ -26,6 +26,7 @@ jobs:
           cache-dependency-path: ./go.sum
       - name: Generate code
         run: |
+          export PATH="$PATH:$(pwd)/bin"
           make generate
           make build
       - name: Dependencies
