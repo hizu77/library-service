@@ -141,18 +141,18 @@ func (mr *MockBookRepositoryMockRecorder) GetBook(ctx, id any) *gomock.Call {
 }
 
 // GetBooksByAuthorID mocks base method.
-func (m *MockBookRepository) GetBooksByAuthorID(ctx context.Context, authorId string) ([]entity.Book, error) {
+func (m *MockBookRepository) GetBooksByAuthorID(ctx context.Context, authorID string) ([]entity.Book, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBooksByAuthorID", ctx, authorId)
+	ret := m.ctrl.Call(m, "GetBooksByAuthorID", ctx, authorID)
 	ret0, _ := ret[0].([]entity.Book)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetBooksByAuthorID indicates an expected call of GetBooksByAuthorID.
-func (mr *MockBookRepositoryMockRecorder) GetBooksByAuthorId(ctx, authorId any) *gomock.Call {
+func (mr *MockBookRepositoryMockRecorder) GetBooksByAuthorID(ctx, authorID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBooksByAuthorID", reflect.TypeOf((*MockBookRepository)(nil).GetBooksByAuthorID), ctx, authorId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBooksByAuthorID", reflect.TypeOf((*MockBookRepository)(nil).GetBooksByAuthorID), ctx, authorID)
 }
 
 // UpdateBook mocks base method.
