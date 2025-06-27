@@ -2,24 +2,25 @@ package book
 
 import (
 	"context"
+
 	"github.com/hizu77/library-service/internal/repository/dbmodel/mapper"
 
 	"github.com/hizu77/library-service/internal/entity"
 	"github.com/hizu77/library-service/pkg/utils"
 )
 
-func (b *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, error) {
+func (b *RepositoryImpl) GetBook(_ context.Context, id string) (entity.Book, error) {
 	b.mx.RLock()
 	defer b.mx.RUnlock()
 
 	if book, ok := b.books[id]; ok {
 		return mapper.BookToDomain(*book), nil
-	} else {
-		return entity.Book{}, entity.ErrBookNotFound
 	}
+
+	return entity.Book{}, entity.ErrBookNotFound
 }
 
-func (b *RepositoryImpl) UpdateBook(ctx context.Context, book entity.Book) (entity.Book, error) {
+func (b *RepositoryImpl) UpdateBook(_ context.Context, book entity.Book) (entity.Book, error) {
 	b.mx.Lock()
 	defer b.mx.Unlock()
 
@@ -51,7 +52,7 @@ func (b *RepositoryImpl) UpdateBook(ctx context.Context, book entity.Book) (enti
 	return book, nil
 }
 
-func (b *RepositoryImpl) AddBook(ctx context.Context, book entity.Book) (entity.Book, error) {
+func (b *RepositoryImpl) AddBook(_ context.Context, book entity.Book) (entity.Book, error) {
 	b.mx.Lock()
 	defer b.mx.Unlock()
 
@@ -73,11 +74,11 @@ func (b *RepositoryImpl) AddBook(ctx context.Context, book entity.Book) (entity.
 	return book, nil
 }
 
-func (b *RepositoryImpl) GetBooksByAuthorId(ctx context.Context, authorId string) ([]entity.Book, error) {
+func (b *RepositoryImpl) GetBooksByAuthorID(_ context.Context, authorID string) ([]entity.Book, error) {
 	b.mx.RLock()
 	defer b.mx.RUnlock()
 
-	if books, ok := b.authorBooks[authorId]; ok {
+	if books, ok := b.authorBooks[authorID]; ok {
 		booksIDs := utils.MapToKeySlice(books)
 		bookEntities := make([]entity.Book, 0, len(booksIDs))
 
@@ -86,7 +87,7 @@ func (b *RepositoryImpl) GetBooksByAuthorId(ctx context.Context, authorId string
 		}
 
 		return bookEntities, nil
-	} else {
-		return []entity.Book{}, nil
 	}
+
+	return []entity.Book{}, nil
 }

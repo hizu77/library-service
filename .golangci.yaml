@@ -74,7 +74,7 @@ linters:
     - perfsprint
     - prealloc
     - protogetter
-    - tenv
+    - usetesting
     - testifylint
     - tparallel
     - usestdlibvars

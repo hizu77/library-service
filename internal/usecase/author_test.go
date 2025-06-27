@@ -2,12 +2,13 @@ package usecase_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/hizu77/library-service/internal/entity"
 	"github.com/hizu77/library-service/internal/usecase/author"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
-	"testing"
 )
 
 const (

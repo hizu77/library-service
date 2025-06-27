@@ -1,8 +1,9 @@
 package author
 
 import (
-	"github.com/hizu77/library-service/internal/repository/dbmodel"
 	"sync"
+
+	"github.com/hizu77/library-service/internal/repository/dbmodel"
 
 	"github.com/hizu77/library-service/internal/repository"
 )

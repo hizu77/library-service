@@ -14,7 +14,7 @@ func (u *UseCaseImpl) GetAuthorBooks(ctx context.Context, id string) ([]entity.B
 		return nil, entity.ErrAuthorNotFound
 	}
 
-	books, err := u.bookRepository.GetBooksByAuthorId(ctx, id)
+	books, err := u.bookRepository.GetBooksByAuthorID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

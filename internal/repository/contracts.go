@@ -17,7 +17,7 @@ type (
 
 	BookRepository interface {
 		GetBook(ctx context.Context, id string) (entity.Book, error)
-		GetBooksByAuthorId(ctx context.Context, authorId string) ([]entity.Book, error)
+		GetBooksByAuthorID(ctx context.Context, authorID string) ([]entity.Book, error)
 		UpdateBook(ctx context.Context, book entity.Book) (entity.Book, error)
 		AddBook(ctx context.Context, book entity.Book) (entity.Book, error)
 	}

@@ -95,7 +95,7 @@ func (c *ControllerImpl) GetAuthorBooks(request *generated.GetAuthorBooksRequest
 		return err
 	}
 
-	books, err := c.bookUseCase.GetAuthorBooks(g.Context(), request.AuthorId)
+	books, err := c.bookUseCase.GetAuthorBooks(g.Context(), request.GetAuthorId())
 
 	if err != nil {
 		return c.convertErr(err)
