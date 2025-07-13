@@ -15,7 +15,7 @@ const (
 	TestUUID = "4d4a8cd8-501b-4bd4-8589-6be8dcca7c09"
 )
 
-func newUseCase(t *testing.T) (*author.UseCaseImpl, *MockAuthorRepository) {
+func newAuthorUseCase(t *testing.T) (*author.UseCaseImpl, *MockAuthorRepository) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
@@ -79,7 +79,7 @@ func TestGetAuthorInfo(t *testing.T) {
 		t.Run(tt.name, func(st *testing.T) {
 			st.Parallel()
 
-			uc, repo := newUseCase(st)
+			uc, repo := newAuthorUseCase(st)
 			tt.mock(repo)
 
 			res, err := uc.GetAuthorInfo(tt.args.ctx, tt.args.uuid)
@@ -148,7 +148,7 @@ func TestRegisterAuthor(t *testing.T) {
 		t.Run(tt.name, func(st *testing.T) {
 			st.Parallel()
 
-			uc, repo := newUseCase(st)
+			uc, repo := newAuthorUseCase(st)
 			tt.mock(repo)
 
 			res, err := uc.RegisterAuthor(tt.args.ctx, tt.args.req)
@@ -222,7 +222,7 @@ func TestChangeAuthorInfo(t *testing.T) {
 		t.Run(tt.name, func(st *testing.T) {
 			st.Parallel()
 
-			uc, repo := newUseCase(st)
+			uc, repo := newAuthorUseCase(st)
 			tt.mock(repo)
 
 			res, err := uc.ChangeAuthorInfo(tt.args.ctx, tt.args.req)

@@ -16,6 +16,7 @@ func (u *UseCaseImpl) GetAuthorBooks(ctx context.Context, id string) ([]entity.B
 
 	books, err := u.bookRepository.GetBooksByAuthorID(ctx, id)
 	if err != nil {
+		u.logger.Error("bookRepository.GetBooksByAuthor", zap.String("id", id), zap.Error(err))
 		return nil, err
 	}
 
