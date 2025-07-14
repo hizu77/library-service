@@ -1,0 +1,39 @@
+package v1
+
+import (
+	"context"
+
+	generated "github.com/hizu77/library-service/generated/api/library"
+	"github.com/hizu77/library-service/internal/controller/grpc/v1/response"
+	"github.com/hizu77/library-service/internal/entity"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (c *ControllerImpl) UpdateBook(ctx context.Context, request *generated.UpdateBookRequest) (*generated.UpdateBookResponse, error) {
+	if err := validateUpdateBookRequest(request); err != nil {
+		c.zap.Error("validate update book request", zap.Error(err))
+		return nil, err
+	}
+
+	book, err := c.bookUseCase.UpdateBook(ctx, entity.Book{
+		ID:         request.GetId(),
+		Name:       request.GetName(),
+		AuthorsIDs: request.GetAuthorIds(),
+	})
+
+	if err != nil {
+		return nil, c.convertErr(err)
+	}
+
+	return response.NewUpdateBook(&book), nil
+}
+
+func validateUpdateBookRequest(request *generated.UpdateBookRequest) error {
+	if err := request.ValidateAll(); err != nil {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return nil
+}
