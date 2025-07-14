@@ -86,4 +86,6 @@ build:
 	go build -o ./bin/library ./cmd/library/
 
 .generate-mocks:
+	rm -rf ./internal/usecase/mock
+	mkdir -p ./internal/usecase/mock
 	cd internal/repository && go generate

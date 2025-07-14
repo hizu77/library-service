@@ -6,11 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	author "github.com/hizu77/library-service/internal/repository/persistent/author/inmemory"
+	book "github.com/hizu77/library-service/internal/repository/persistent/book/inmemory"
+
 	"github.com/hizu77/library-service/config"
 	"github.com/hizu77/library-service/internal/controller/grpc"
 	"github.com/hizu77/library-service/internal/controller/http"
-	"github.com/hizu77/library-service/internal/repository/persistent/author"
-	"github.com/hizu77/library-service/internal/repository/persistent/book"
 	auc "github.com/hizu77/library-service/internal/usecase/author"
 	buc "github.com/hizu77/library-service/internal/usecase/book"
 	"github.com/hizu77/library-service/pkg/grpcserver"

@@ -6,7 +6,8 @@ import (
 	"github.com/hizu77/library-service/internal/entity"
 )
 
-//go:generate ../../bin/mockgen -source=contracts.go -destination=../usecase/mocks_repo_test.go -package=usecase_test
+//go:generate ../../bin/mockgen -destination=../usecase/mock/author.go -package=mock github.com/hizu77/library-service/internal/repository AuthorRepository
+//go:generate ../../bin/mockgen -destination=../usecase/mock/book.go -package=mock github.com/hizu77/library-service/internal/repository BookRepository
 
 type (
 	AuthorRepository interface {

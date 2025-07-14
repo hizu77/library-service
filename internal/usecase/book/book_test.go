@@ -1,25 +1,30 @@
-package usecase_test
+package book
 
 import (
 	"context"
+	"testing"
+
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/usecase/book"
+	"github.com/hizu77/library-service/internal/usecase/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
-	"testing"
 )
 
-func newBookUseCase(t *testing.T) (*book.UseCaseImpl, *MockAuthorRepository, *MockBookRepository) {
+const (
+	TestUUID = "4d4a8cd8-501b-4bd4-8589-6be8dcca7c09"
+)
+
+func newBookUseCase(t *testing.T) (*UseCaseImpl, *mock.MockAuthorRepository, *mock.MockBookRepository) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
-	mockBookRepository := NewMockBookRepository(ctrl)
-	mockAuthorRepository := NewMockAuthorRepository(ctrl)
+	mockBookRepository := mock.NewMockBookRepository(ctrl)
+	mockAuthorRepository := mock.NewMockAuthorRepository(ctrl)
 	logger := zap.NewNop()
-	usecase := book.NewUseCase(logger, mockAuthorRepository, mockBookRepository)
+	uc := NewUseCase(logger, mockAuthorRepository, mockBookRepository)
 
-	return usecase, mockAuthorRepository, mockBookRepository
+	return uc, mockAuthorRepository, mockBookRepository
 }
 
 func TestGetAuthorBooks(t *testing.T) {
@@ -33,7 +38,7 @@ func TestGetAuthorBooks(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(authorRepo *MockAuthorRepository, bookRepo *MockBookRepository)
+		mock    func(authorRepo *mock.MockAuthorRepository, bookRepo *mock.MockBookRepository)
 		want    []entity.Book
 		wantErr error
 	}{
@@ -43,7 +48,7 @@ func TestGetAuthorBooks(t *testing.T) {
 				ctx: context.Background(),
 				id:  TestUUID,
 			},
-			mock: func(authorRepo *MockAuthorRepository, bookRepo *MockBookRepository) {
+			mock: func(authorRepo *mock.MockAuthorRepository, bookRepo *mock.MockBookRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).Return(entity.Author{}, entity.ErrAuthorNotFound)
 				bookRepo.EXPECT().GetBooksByAuthorID(gomock.Any(), TestUUID).Times(0)
 			},
@@ -56,7 +61,7 @@ func TestGetAuthorBooks(t *testing.T) {
 				ctx: context.Background(),
 				id:  TestUUID,
 			},
-			mock: func(authorRepo *MockAuthorRepository, bookRepo *MockBookRepository) {
+			mock: func(authorRepo *mock.MockAuthorRepository, bookRepo *mock.MockBookRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).Return(entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
@@ -72,7 +77,7 @@ func TestGetAuthorBooks(t *testing.T) {
 				ctx: context.Background(),
 				id:  TestUUID,
 			},
-			mock: func(authorRepo *MockAuthorRepository, bookRepo *MockBookRepository) {
+			mock: func(authorRepo *mock.MockAuthorRepository, bookRepo *mock.MockBookRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).Return(entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
@@ -122,7 +127,7 @@ func TestGetBookInfo(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(bookRepo *MockBookRepository)
+		mock    func(bookRepo *mock.MockBookRepository)
 		want    entity.Book
 		wantErr error
 	}{
@@ -132,7 +137,7 @@ func TestGetBookInfo(t *testing.T) {
 				ctx: context.Background(),
 				id:  TestUUID,
 			},
-			mock: func(bookRepo *MockBookRepository) {
+			mock: func(bookRepo *mock.MockBookRepository) {
 				bookRepo.EXPECT().GetBook(gomock.Any(), TestUUID).Return(entity.Book{}, entity.ErrBookNotFound)
 			},
 			wantErr: entity.ErrBookNotFound,
@@ -144,7 +149,7 @@ func TestGetBookInfo(t *testing.T) {
 				ctx: context.Background(),
 				id:  TestUUID,
 			},
-			mock: func(bookRepo *MockBookRepository) {
+			mock: func(bookRepo *mock.MockBookRepository) {
 				bookRepo.EXPECT().GetBook(gomock.Any(), TestUUID).Return(entity.Book{
 					ID:         TestUUID,
 					Name:       "misha book",
@@ -186,7 +191,7 @@ func TestAddBook(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository)
+		mock    func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository)
 		wantErr error
 		want    entity.Book
 	}{
@@ -200,7 +205,7 @@ func TestAddBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).Return(entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
@@ -230,7 +235,7 @@ func TestAddBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{}, entity.ErrAuthorNotFound)
 
@@ -249,7 +254,7 @@ func TestAddBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{
 						ID:   TestUUID,
@@ -290,7 +295,7 @@ func TestUpdateBook(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository)
+		mock    func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository)
 		wantErr error
 		want    entity.Book
 	}{
@@ -304,7 +309,7 @@ func TestUpdateBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).Return(entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
@@ -338,7 +343,7 @@ func TestUpdateBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{}, entity.ErrAuthorNotFound)
 
@@ -361,7 +366,7 @@ func TestUpdateBook(t *testing.T) {
 					AuthorsIDs: []string{TestUUID},
 				},
 			},
-			mock: func(bookRepo *MockBookRepository, authorRepo *MockAuthorRepository) {
+			mock: func(bookRepo *mock.MockBookRepository, authorRepo *mock.MockAuthorRepository) {
 				authorRepo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{
 						ID:   TestUUID,

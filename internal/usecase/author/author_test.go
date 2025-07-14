@@ -1,11 +1,12 @@
-package usecase_test
+package author
 
 import (
 	"context"
 	"testing"
 
+	"github.com/hizu77/library-service/internal/usecase/mock"
+
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/usecase/author"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
@@ -15,15 +16,15 @@ const (
 	TestUUID = "4d4a8cd8-501b-4bd4-8589-6be8dcca7c09"
 )
 
-func newAuthorUseCase(t *testing.T) (*author.UseCaseImpl, *MockAuthorRepository) {
+func newAuthorUseCase(t *testing.T) (*UseCaseImpl, *mock.MockAuthorRepository) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
-	mockAuthorRepository := NewMockAuthorRepository(ctrl)
+	mockAuthorRepository := mock.NewMockAuthorRepository(ctrl)
 	logger := zap.NewNop()
-	usecase := author.NewUseCase(logger, mockAuthorRepository)
+	uc := NewUseCase(logger, mockAuthorRepository)
 
-	return usecase, mockAuthorRepository
+	return uc, mockAuthorRepository
 }
 
 func TestGetAuthorInfo(t *testing.T) {
@@ -37,7 +38,7 @@ func TestGetAuthorInfo(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(repo *MockAuthorRepository)
+		mock    func(repo *mock.MockAuthorRepository)
 		want    entity.Author
 		wantErr error
 	}{
@@ -47,7 +48,7 @@ func TestGetAuthorInfo(t *testing.T) {
 				ctx:  context.Background(),
 				uuid: TestUUID,
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{}, entity.ErrAuthorNotFound)
 			},
@@ -60,7 +61,7 @@ func TestGetAuthorInfo(t *testing.T) {
 				ctx:  context.Background(),
 				uuid: TestUUID,
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().GetAuthor(gomock.Any(), TestUUID).
 					Return(entity.Author{
 						ID:   TestUUID,
@@ -101,7 +102,7 @@ func TestRegisterAuthor(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(repo *MockAuthorRepository)
+		mock    func(repo *mock.MockAuthorRepository)
 		want    entity.Author
 		wantErr error
 	}{
@@ -113,7 +114,7 @@ func TestRegisterAuthor(t *testing.T) {
 					Name: "misha",
 				},
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().AddAuthor(gomock.Any(), gomock.Any()).
 					Return(entity.Author{
 						ID:   TestUUID,
@@ -135,7 +136,7 @@ func TestRegisterAuthor(t *testing.T) {
 					Name: "misha",
 				},
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().AddAuthor(gomock.Any(), gomock.Any()).
 					Return(entity.Author{}, entity.ErrAuthorAlreadyExists)
 			},
@@ -170,7 +171,7 @@ func TestChangeAuthorInfo(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		mock    func(repo *MockAuthorRepository)
+		mock    func(repo *mock.MockAuthorRepository)
 		want    entity.Author
 		wantErr error
 	}{
@@ -183,7 +184,7 @@ func TestChangeAuthorInfo(t *testing.T) {
 					Name: "misha",
 				},
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().UpdateAuthor(gomock.Any(), entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
@@ -207,7 +208,7 @@ func TestChangeAuthorInfo(t *testing.T) {
 					Name: "misha",
 				},
 			},
-			mock: func(repo *MockAuthorRepository) {
+			mock: func(repo *mock.MockAuthorRepository) {
 				repo.EXPECT().UpdateAuthor(gomock.Any(), entity.Author{
 					ID:   TestUUID,
 					Name: "misha",
