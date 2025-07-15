@@ -1,9 +1,8 @@
 package config
 
 import (
-	"errors"
-	"os"
-
+	"fmt"
+	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 )
 
@@ -11,51 +10,35 @@ type (
 	Config struct {
 		GRPC
 		HTTP
+		Postgres
 	}
 
 	GRPC struct {
-		Port        string `env:"GRPC_PORT"`
-		Host        string `env:"GRPC_HOST"`
-		GatewayPort string `env:"GRPC_GATEWAY_PORT"`
+		Port        string `env:"GRPC_PORT, required"`
+		Host        string `env:"GRPC_HOST, required"`
+		GatewayPort string `env:"GRPC_GATEWAY_PORT, required"`
 	}
 
 	HTTP struct {
-		UsePrefork bool `env:"HTTP_USE_PREFORK"`
+		UsePrefork bool `env:"HTTP_USE_PREFORK, required"`
+	}
+
+	Postgres struct {
+		PoolMax int    `env:"POSTGRES_POOL_MAX, required"`
+		URL     string `env:"POSTGRES_URL, required"`
 	}
 )
 
-var (
-	ErrInvalidGrpcPort    = errors.New("invalid grpc port")
-	ErrInvalidGatewayPort = errors.New("invalid gateway port")
-	ErrInvalidGatewayHost = errors.New("invalid gateway host")
-)
-
 func New() (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		return nil, err
 	}
 
 	cfg := &Config{}
 
-	cfg.GRPC.Port = os.Getenv("GRPC_PORT")
-
-	if cfg.GRPC.Port == "" {
-		return nil, ErrInvalidGrpcPort
+	if err := env.Parse(cfg); err != nil {
+		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
-
-	cfg.GRPC.Host = os.Getenv("GRPC_HOST")
-	if cfg.GRPC.Host == "" {
-		return nil, ErrInvalidGatewayHost
-	}
-
-	cfg.GRPC.GatewayPort = os.Getenv("GRPC_GATEWAY_PORT")
-
-	if cfg.GRPC.GatewayPort == "" {
-		return nil, ErrInvalidGatewayPort
-	}
-
-	cfg.HTTP.UsePrefork = os.Getenv("HTTP_USE_PREFORK") == "true"
 
 	return cfg, nil
 }
