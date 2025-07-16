@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"github.com/hizu77/library-service/db"
+	"github.com/hizu77/library-service/pkg/postgres"
 	"net"
 	"os/signal"
 	"syscall"
@@ -28,6 +30,14 @@ func Run(cfg *config.Config) {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
+
+	pg, err := postgres.New(ctx, cfg.Postgres.URL, postgres.MaxPoolSize(cfg.Postgres.PoolMax))
+	if err != nil {
+		logger.Fatal("can not initialize postgres", zap.Error(err))
+	}
+	defer pg.Close()
+
+	db.Migrate(pg.Pool, logger)
 
 	authorRepository := author.NewInMemoryRepository()
 	bookRepository := book.NewInMemoryRepository()
