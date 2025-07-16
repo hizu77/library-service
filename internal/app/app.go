@@ -3,13 +3,13 @@ package app
 import (
 	"context"
 	"github.com/hizu77/library-service/db"
+	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
 	"github.com/hizu77/library-service/pkg/postgres"
 	"net"
 	"os/signal"
 	"syscall"
 
-	author "github.com/hizu77/library-service/internal/repository/persistent/author/inmemory"
-	book "github.com/hizu77/library-service/internal/repository/persistent/book/inmemory"
+	bookRepo "github.com/hizu77/library-service/internal/repository/persistent/book/postgres"
 
 	"github.com/hizu77/library-service/config"
 	"github.com/hizu77/library-service/internal/controller/grpc"
@@ -39,8 +39,8 @@ func Run(cfg *config.Config) {
 
 	db.Migrate(pg.Pool, logger)
 
-	authorRepository := author.NewInMemoryRepository()
-	bookRepository := book.NewInMemoryRepository()
+	authorRepository := authorRepo.New(pg)
+	bookRepository := bookRepo.New(pg)
 
 	authorUseCase := auc.NewUseCase(logger, authorRepository)
 	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository)
