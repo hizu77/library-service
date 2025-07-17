@@ -14,18 +14,18 @@ type (
 	}
 
 	GRPC struct {
-		Port        string `env:"GRPC_PORT, required"`
-		Host        string `env:"GRPC_HOST, required"`
-		GatewayPort string `env:"GRPC_GATEWAY_PORT, required"`
+		Port        string `env:"GRPC_PORT"`
+		Host        string `env:"GRPC_HOST"`
+		GatewayPort string `env:"GRPC_GATEWAY_PORT"`
 	}
 
 	HTTP struct {
-		UsePrefork bool `env:"HTTP_USE_PREFORK, required"`
+		UsePrefork bool `env:"HTTP_USE_PREFORK"`
 	}
 
 	Postgres struct {
-		PoolMax int    `env:"POSTGRES_POOL_MAX, required"`
-		URL     string `env:"POSTGRES_URL, required"`
+		PoolMax int    `env:"POSTGRES_POOL_MAX"`
+		URL     string `env:"POSTGRES_URL"`
 	}
 )
 

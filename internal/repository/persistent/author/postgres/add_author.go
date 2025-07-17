@@ -24,10 +24,10 @@ func (r *RepositoryImpl) AddAuthor(ctx context.Context, author entity.Author) (e
 	}
 
 	_, err = tx.Exec(ctx, sql, args...)
-
 	if utils.IsUniqueConstraintError(err) {
 		return entity.Author{}, entity.ErrAuthorAlreadyExists
 	}
+
 	if err != nil {
 		return entity.Author{}, err
 	}

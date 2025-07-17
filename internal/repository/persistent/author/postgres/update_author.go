@@ -18,7 +18,7 @@ func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author)
 	sql, args, err := r.Builder.
 		Update(TableName).
 		Set(Name, author.Name).
-		Where(squirrel.Eq{Name: author.Name}).
+		Where(squirrel.Eq{ID: author.ID}).
 		ToSql()
 
 	if err != nil {

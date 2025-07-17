@@ -10,7 +10,7 @@ import (
 
 func (r *RepositoryImpl) GetAuthor(ctx context.Context, id string) (entity.Author, error) {
 	sql, args, err := r.Builder.
-		Select(ID, Name).
+		Select(Name).
 		From(TableName).
 		Where(squirrel.Eq{ID: id}).
 		ToSql()
@@ -19,8 +19,11 @@ func (r *RepositoryImpl) GetAuthor(ctx context.Context, id string) (entity.Autho
 		return entity.Author{}, err
 	}
 
-	var author entity.Author
-	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&author.ID, &author.Name)
+	author := entity.Author{
+		ID: id,
+	}
+	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&author.Name)
+
 	if errors.Is(err, db.ErrNoRows) {
 		return entity.Author{}, entity.ErrAuthorNotFound
 	}
