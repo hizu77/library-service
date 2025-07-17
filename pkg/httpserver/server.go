@@ -29,7 +29,7 @@ type Server struct {
 }
 
 func New(opts ...Option) *Server {
-	logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 
 	server := &Server{
 		App:             nil,

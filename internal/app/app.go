@@ -2,12 +2,14 @@ package app
 
 import (
 	"context"
+	"github.com/hizu77/library-service/db"
+	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
+	"github.com/hizu77/library-service/pkg/postgres"
 	"net"
 	"os/signal"
 	"syscall"
 
-	author "github.com/hizu77/library-service/internal/repository/persistent/author/inmemory"
-	book "github.com/hizu77/library-service/internal/repository/persistent/book/inmemory"
+	bookRepo "github.com/hizu77/library-service/internal/repository/persistent/book/postgres"
 
 	"github.com/hizu77/library-service/config"
 	"github.com/hizu77/library-service/internal/controller/grpc"
@@ -29,8 +31,16 @@ func Run(cfg *config.Config) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	authorRepository := author.NewInMemoryRepository()
-	bookRepository := book.NewInMemoryRepository()
+	pg, err := postgres.New(ctx, cfg.Postgres.URL, postgres.MaxPoolSize(cfg.Postgres.PoolMax))
+	if err != nil {
+		logger.Fatal("can not initialize postgres", zap.Error(err))
+	}
+	defer pg.Close()
+
+	db.Migrate(pg.Pool, logger)
+
+	authorRepository := authorRepo.New(pg)
+	bookRepository := bookRepo.New(pg)
 
 	authorUseCase := auc.NewUseCase(logger, authorRepository)
 	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository)

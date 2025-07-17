@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"go.uber.org/zap"
 	"net"
 	"time"
 )
@@ -16,6 +17,12 @@ func Port(port string) Option {
 func Prefork(prefork bool) Option {
 	return func(s *Server) {
 		s.prefork = prefork
+	}
+}
+
+func Logger(logger *zap.Logger) Option {
+	return func(s *Server) {
+		s.logger = logger
 	}
 }
 
