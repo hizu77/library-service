@@ -21,8 +21,13 @@ func newBookUseCase(t *testing.T) (*UseCaseImpl, *mock.MockAuthorRepository, *mo
 	ctrl := gomock.NewController(t)
 	mockBookRepository := mock.NewMockBookRepository(ctrl)
 	mockAuthorRepository := mock.NewMockAuthorRepository(ctrl)
+	mockTransactor := mock.NewMockTransactor(ctrl)
+	mockTransactor.EXPECT().WithTx(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, function func(ctx context.Context) error) error {
+			return function(ctx)
+		})
 	logger := zap.NewNop()
-	uc := NewUseCase(logger, mockAuthorRepository, mockBookRepository)
+	uc := NewUseCase(logger, mockAuthorRepository, mockBookRepository, mockTransactor)
 
 	return uc, mockAuthorRepository, mockBookRepository
 }

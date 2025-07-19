@@ -12,10 +12,16 @@ type Impl struct {
 	pool *pgxpool.Pool
 }
 
+func New(pool *pgxpool.Pool) *Impl {
+	return &Impl{
+		pool: pool,
+	}
+}
+
 func (i *Impl) WithTx(ctx context.Context, function func(ctx context.Context) error) (txErr error) {
-	ctxWithTx, tx, err := injectTx(ctx, i.pool)
+	ctxWithTx, tx, err := InjectTx(ctx, i.pool)
 	if err != nil {
-		return fmt.Errorf("injectTx: %w", err)
+		return fmt.Errorf("InjectTx: %w", err)
 	}
 
 	defer func() {

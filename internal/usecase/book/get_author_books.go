@@ -8,18 +8,29 @@ import (
 )
 
 func (u *UseCaseImpl) GetAuthorBooks(ctx context.Context, id string) ([]entity.Book, error) {
-	if _, err := u.authorRepository.GetAuthor(ctx, id); err != nil {
-		u.logger.Error("authorRepository.GetAuthor", zap.String("id", id))
-		return nil, entity.ErrAuthorNotFound
-	}
+	var outBooks []entity.Book
 
-	books, err := u.bookRepository.GetBooksByAuthorID(ctx, id)
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+
+		if _, txErr = u.authorRepository.GetAuthor(ctx, id); txErr != nil {
+			u.logger.Error("authorRepository.GetAuthor", zap.String("id", id))
+			return txErr
+		}
+
+		outBooks, txErr = u.bookRepository.GetBooksByAuthorID(ctx, id)
+		if txErr != nil {
+			u.logger.Error("bookRepository.GetBooksByAuthor", zap.String("id", id), zap.Error(txErr))
+			return txErr
+		}
+
+		u.logger.Info("GetAuthorBooks", zap.String("ID", id))
+
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("bookRepository.GetBooksByAuthor", zap.String("id", id), zap.Error(err))
 		return nil, err
 	}
 
-	u.logger.Info("GetAuthorBooks", zap.String("ID", id))
-
-	return books, nil
+	return outBooks, nil
 }

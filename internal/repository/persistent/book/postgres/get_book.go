@@ -6,14 +6,30 @@ import (
 	"errors"
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/library-service/internal/entity"
+	"github.com/hizu77/library-service/pkg/transactor"
+	"github.com/jackc/pgx/v5"
 )
 
-func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, error) {
-	tx, err := r.Pool.Begin(ctx)
-	if err != nil {
-		return entity.Book{}, err
+func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity.Book, txErr error) {
+	var (
+		tx  pgx.Tx
+		err error
+	)
+
+	if tx, err = transactor.ExtractTx(ctx); err != nil {
+		tx, err = r.Pool.Begin(ctx)
+		if err != nil {
+			return entity.Book{}, err
+		}
+
+		defer func(tx pgx.Tx, ctx context.Context) {
+			if txErr != nil {
+				tx.Rollback(ctx)
+			}
+
+			tx.Commit(ctx)
+		}(tx, ctx)
 	}
-	defer tx.Rollback(ctx)
 
 	sql, args, err := r.Builder.
 		Select(Name).
@@ -61,10 +77,6 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, e
 		}
 
 		book.AuthorsIDs = append(book.AuthorsIDs, authorID)
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return entity.Book{}, err
 	}
 
 	return book, nil

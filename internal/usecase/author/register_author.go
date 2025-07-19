@@ -3,22 +3,28 @@ package author
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/hizu77/library-service/internal/entity"
 	"go.uber.org/zap"
 )
 
 func (u *UseCaseImpl) RegisterAuthor(ctx context.Context, author entity.Author) (entity.Author, error) {
-	author.ID = uuid.New().String()
+	var outAuthor entity.Author
 
-	v, err := u.authorRepository.AddAuthor(ctx, author)
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+		outAuthor, txErr = u.authorRepository.AddAuthor(ctx, author)
+		if txErr != nil {
+			u.logger.Error("authorRepository.AddAuthor", zap.Error(txErr))
+			return txErr
+		}
 
+		u.logger.Info("RegisterAuthor", zap.String("ID", outAuthor.ID))
+
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("authorRepository.AddAuthor", zap.Error(err))
 		return entity.Author{}, err
 	}
 
-	u.logger.Info("RegisterAuthor", zap.String("ID", v.ID))
-
-	return v, nil
+	return outAuthor, nil
 }

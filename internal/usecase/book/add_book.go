@@ -3,31 +3,37 @@ package book
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/hizu77/library-service/internal/entity"
 	"go.uber.org/zap"
 )
 
 func (u *UseCaseImpl) AddBook(ctx context.Context, book entity.Book) (entity.Book, error) {
-	for i := range book.AuthorsIDs {
-		_, err := u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
+	var outBook entity.Book
 
-		if err != nil {
-			u.logger.Error("authorRepository.GetAuthor", zap.Error(err))
-			return entity.Book{}, err
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+
+		for i := range book.AuthorsIDs {
+			_, txErr = u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
+			if txErr != nil {
+				u.logger.Error("authorRepository.GetAuthor", zap.Error(txErr))
+				return txErr
+			}
 		}
-	}
 
-	book.ID = uuid.New().String()
+		outBook, txErr = u.bookRepository.AddBook(ctx, book)
+		if txErr != nil {
+			u.logger.Error("bookRepository.AddBook", zap.Error(txErr))
+			return txErr
+		}
 
-	v, err := u.bookRepository.AddBook(ctx, book)
+		u.logger.Info("AddBook", zap.String("ID", outBook.ID))
 
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("bookRepository.AddBook", zap.Error(err))
 		return entity.Book{}, err
 	}
 
-	u.logger.Info("AddBook", zap.String("ID", v.ID))
-
-	return v, nil
+	return outBook, nil
 }

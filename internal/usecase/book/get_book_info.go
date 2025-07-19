@@ -8,14 +8,23 @@ import (
 )
 
 func (u *UseCaseImpl) GetBookInfo(ctx context.Context, id string) (entity.Book, error) {
-	v, err := u.bookRepository.GetBook(ctx, id)
+	var outBook entity.Book
 
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+		outBook, txErr = u.bookRepository.GetBook(ctx, id)
+		if txErr != nil {
+			u.logger.Error("bookRepository.GetBook", zap.Error(txErr))
+			return txErr
+		}
+
+		u.logger.Info("GetBookInfo", zap.String("ID", id))
+
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("bookRepository.GetBook", zap.Error(err))
 		return entity.Book{}, err
 	}
 
-	u.logger.Info("GetBookInfo", zap.String("ID", id))
-
-	return v, nil
+	return outBook, nil
 }

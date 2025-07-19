@@ -5,6 +5,7 @@ import (
 	"github.com/hizu77/library-service/db"
 	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
 	"github.com/hizu77/library-service/pkg/postgres"
+	"github.com/hizu77/library-service/pkg/transactor"
 	"net"
 	"os/signal"
 	"syscall"
@@ -42,8 +43,10 @@ func Run(cfg *config.Config) {
 	authorRepository := authorRepo.New(pg)
 	bookRepository := bookRepo.New(pg)
 
-	authorUseCase := auc.NewUseCase(logger, authorRepository)
-	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository)
+	tx := transactor.New(pg.Pool)
+
+	authorUseCase := auc.NewUseCase(logger, authorRepository, tx)
+	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository, tx)
 
 	grpcServer := grpcserver.New(
 		grpcserver.Port(cfg.GRPC.Port),

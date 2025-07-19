@@ -6,14 +6,30 @@ import (
 	"errors"
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/library-service/internal/entity"
+	"github.com/hizu77/library-service/pkg/transactor"
+	"github.com/jackc/pgx/v5"
 )
 
-func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author) (entity.Author, error) {
-	tx, err := r.Pool.Begin(ctx)
-	if err != nil {
-		return entity.Author{}, err
+func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author) (outAuthor entity.Author, txErr error) {
+	var (
+		tx  pgx.Tx
+		err error
+	)
+
+	if tx, err = transactor.ExtractTx(ctx); err != nil {
+		tx, err = r.Pool.Begin(ctx)
+		if err != nil {
+			return entity.Author{}, err
+		}
+
+		defer func(tx pgx.Tx, ctx context.Context) {
+			if txErr != nil {
+				tx.Rollback(ctx)
+			}
+
+			tx.Commit(ctx)
+		}(tx, ctx)
 	}
-	defer tx.Rollback(ctx)
 
 	sql, args, err := r.Builder.
 		Update(TableName).
@@ -32,10 +48,6 @@ func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author)
 	}
 
 	if err != nil {
-		return entity.Author{}, err
-	}
-
-	if err = tx.Commit(ctx); err != nil {
 		return entity.Author{}, err
 	}
 

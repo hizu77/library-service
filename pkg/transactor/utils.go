@@ -15,7 +15,7 @@ var (
 	ErrTxNotFound = errors.New("transaction not found")
 )
 
-func extractTx(ctx context.Context) (pgx.Tx, error) {
+func ExtractTx(ctx context.Context) (pgx.Tx, error) {
 	tx, ok := ctx.Value(txInjector{}).(pgx.Tx)
 	if !ok {
 		return nil, ErrTxNotFound
@@ -24,8 +24,8 @@ func extractTx(ctx context.Context) (pgx.Tx, error) {
 	return tx, nil
 }
 
-func injectTx(ctx context.Context, pool *pgxpool.Pool) (context.Context, pgx.Tx, error) {
-	if tx, err := extractTx(ctx); err == nil {
+func InjectTx(ctx context.Context, pool *pgxpool.Pool) (context.Context, pgx.Tx, error) {
+	if tx, err := ExtractTx(ctx); err == nil {
 		return ctx, tx, nil
 	}
 
