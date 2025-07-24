@@ -22,13 +22,13 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity
 			return entity.Book{}, err
 		}
 
-		defer func(tx pgx.Tx, ctx context.Context) {
+		defer func() {
 			if txErr != nil {
 				tx.Rollback(ctx)
+			} else {
+				tx.Commit(ctx)
 			}
-
-			tx.Commit(ctx)
-		}(tx, ctx)
+		}()
 	}
 
 	sql, args, err := r.Builder.

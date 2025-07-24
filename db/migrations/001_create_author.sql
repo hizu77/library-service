@@ -26,5 +26,7 @@ CREATE OR REPLACE TRIGGER trigger_update_author_timestamp
 EXECUTE FUNCTION update_author_timestamp();
 
 -- +goose Down
+DROP TRIGGER IF EXISTS trigger_update_author_timestamp ON author;
+DROP FUNCTION IF EXISTS update_author_timestamp;
 DROP TABLE IF EXISTS author;
 

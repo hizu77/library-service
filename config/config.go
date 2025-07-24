@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
+	"time"
 )
 
 type (
@@ -11,6 +12,7 @@ type (
 		GRPC
 		HTTP
 		Postgres
+		Outbox
 	}
 
 	GRPC struct {
@@ -26,6 +28,13 @@ type (
 	Postgres struct {
 		PoolMax int    `env:"POSTGRES_POOL_MAX"`
 		URL     string `env:"POSTGRES_URL"`
+	}
+
+	Outbox struct {
+		Workers         int           `env:"OUTBOX_WORKERS"`
+		BatchSize       int           `env:"OUTBOX_BATCH_SIZE"`
+		WaitTimeMS      time.Duration `env:"OUTBOX_WAIT_TIME_MS"`
+		InProgressTTLMS time.Duration `env:"OUTBOX_IN_PROGRESS_TTL_MS"`
 	}
 )
 

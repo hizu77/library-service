@@ -10,6 +10,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	outboxRepo "github.com/hizu77/library-service/internal/infra/repository/outbox"
+	outboxService "github.com/hizu77/library-service/internal/infra/service/outbox"
 	bookRepo "github.com/hizu77/library-service/internal/repository/persistent/book/postgres"
 
 	"github.com/hizu77/library-service/config"
@@ -42,11 +44,13 @@ func Run(cfg *config.Config) {
 
 	authorRepository := authorRepo.New(pg)
 	bookRepository := bookRepo.New(pg)
+	outboxRepository := outboxRepo.New(pg)
 
 	tx := transactor.New(pg.Pool)
 
 	authorUseCase := auc.NewUseCase(logger, authorRepository, tx)
 	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository, tx)
+	outbox := outboxService.New(outboxRepository, logger, tx, outboxService.Handler())
 
 	grpcServer := grpcserver.New(
 		grpcserver.Port(cfg.GRPC.Port),
@@ -63,6 +67,13 @@ func Run(cfg *config.Config) {
 
 	grpcServer.Start()
 	gateway.Start()
+	outbox.Start(
+		ctx,
+		cfg.Outbox.Workers,
+		cfg.Outbox.BatchSize,
+		cfg.Outbox.WaitTimeMS,
+		cfg.Outbox.InProgressTTLMS,
+	)
 
 	select {
 	case <-ctx.Done():
@@ -82,4 +93,6 @@ func Run(cfg *config.Config) {
 	if err = grpcServer.Shutdown(); err != nil {
 		logger.Error("grpc server shutdown error", zap.Error(err))
 	}
+
+	outbox.Stop()
 }

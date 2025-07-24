@@ -33,7 +33,7 @@ func (i *Impl) WithTx(ctx context.Context, function func(ctx context.Context) er
 		tx.Commit(ctxWithTx)
 	}()
 
-	err = function(ctx)
+	err = function(ctxWithTx)
 	if err != nil {
 		return fmt.Errorf("function: %w", err)
 	}

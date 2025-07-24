@@ -1,6 +1,6 @@
 package dbmodel
 
-type DBBook struct {
+type Book struct {
 	ID         string
 	Name       string
 	AuthorsIDs []string

@@ -2,9 +2,9 @@ package author
 
 import (
 	"context"
+	"github.com/hizu77/library-service/internal/model/db/mapper"
 
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/repository/dbmodel/mapper"
 )
 
 func (a *RepositoryImpl) GetAuthor(_ context.Context, id string) (entity.Author, error) {

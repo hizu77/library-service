@@ -1,9 +1,8 @@
 package author
 
 import (
+	"github.com/hizu77/library-service/internal/model/db"
 	"sync"
-
-	"github.com/hizu77/library-service/internal/repository/dbmodel"
 
 	"github.com/hizu77/library-service/internal/repository"
 )
@@ -12,12 +11,12 @@ var _ repository.AuthorRepository = (*RepositoryImpl)(nil)
 
 type RepositoryImpl struct {
 	mx      *sync.RWMutex
-	authors map[string]*dbmodel.DBAuthor
+	authors map[string]*dbmodel.Author
 }
 
 func NewInMemoryRepository() *RepositoryImpl {
 	return &RepositoryImpl{
 		mx:      new(sync.RWMutex),
-		authors: make(map[string]*dbmodel.DBAuthor),
+		authors: make(map[string]*dbmodel.Author),
 	}
 }
