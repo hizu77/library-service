@@ -2,12 +2,13 @@ package outbox
 
 import (
 	"context"
+	"sync"
+	"time"
+
 	"github.com/hizu77/library-service/internal/infra/repository"
 	"github.com/hizu77/library-service/internal/infra/service"
 	"github.com/hizu77/library-service/pkg/transactor"
 	"go.uber.org/zap"
-	"sync"
-	"time"
 )
 
 var _ service.Outbox = (*Impl)(nil)

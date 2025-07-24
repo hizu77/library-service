@@ -1,8 +1,9 @@
 package postgres
 
 import (
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Option func(*Postgres)

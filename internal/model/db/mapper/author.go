@@ -2,7 +2,7 @@ package mapper
 
 import (
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/model/db"
+	dbmodel "github.com/hizu77/library-service/internal/model/db"
 )
 
 func AuthorToDB(author entity.Author) dbmodel.Author {

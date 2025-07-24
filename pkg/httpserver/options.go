@@ -1,9 +1,10 @@
 package httpserver
 
 import (
-	"go.uber.org/zap"
 	"net"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Option func(*Server)

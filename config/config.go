@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	"time"
 )
 
 type (

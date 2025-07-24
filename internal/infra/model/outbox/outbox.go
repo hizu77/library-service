@@ -18,3 +18,14 @@ type (
 		Kind           Kind
 	}
 )
+
+func (k Kind) String() string {
+	switch k {
+	case KindBook:
+		return "book"
+	case KindAuthor:
+		return "author"
+	default:
+		return "undefined"
+	}
+}

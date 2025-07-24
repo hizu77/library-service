@@ -2,7 +2,7 @@ package author
 
 import (
 	"context"
-	"encoding/json"
+
 	"github.com/hizu77/library-service/internal/entity"
 	"go.uber.org/zap"
 )
@@ -18,15 +18,7 @@ func (u *UseCaseImpl) ChangeAuthorInfo(ctx context.Context, author entity.Author
 			return txErr
 		}
 
-		serialized, txErr := json.Marshal(outAuthor)
-		if txErr != nil {
-			u.logger.Error("authorRepository.UpdateAuthor", zap.Error(txErr))
-			return txErr
-		}
-
-		idempotencyKey :=
-
-			u.logger.Info("ChangeAuthorInfo", zap.String("ID", outAuthor.ID))
+		u.logger.Info("ChangeAuthorInfo", zap.String("ID", outAuthor.ID))
 
 		return nil
 

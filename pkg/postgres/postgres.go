@@ -2,10 +2,11 @@ package postgres
 
 import (
 	"context"
+	"time"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
-	"time"
 )
 
 const (

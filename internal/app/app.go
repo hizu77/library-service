@@ -2,13 +2,14 @@ package app
 
 import (
 	"context"
+	"net"
+	"os/signal"
+	"syscall"
+
 	"github.com/hizu77/library-service/db"
 	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
 	"github.com/hizu77/library-service/pkg/postgres"
 	"github.com/hizu77/library-service/pkg/transactor"
-	"net"
-	"os/signal"
-	"syscall"
 
 	outboxRepo "github.com/hizu77/library-service/internal/infra/repository/outbox"
 	outboxService "github.com/hizu77/library-service/internal/infra/service/outbox"
@@ -48,9 +49,9 @@ func Run(cfg *config.Config) {
 
 	tx := transactor.New(pg.Pool)
 
-	authorUseCase := auc.NewUseCase(logger, authorRepository, tx)
-	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository, tx)
 	outbox := outboxService.New(outboxRepository, logger, tx, outboxService.Handler())
+	authorUseCase := auc.NewUseCase(logger, authorRepository, tx, outboxRepository)
+	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository, tx, outboxRepository)
 
 	grpcServer := grpcserver.New(
 		grpcserver.Port(cfg.GRPC.Port),

@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
-	"github.com/hizu77/library-service/internal/infra/model/outbox"
 	"time"
+
+	"github.com/hizu77/library-service/internal/infra/model/outbox"
 )
+
+//go:generate ../../../bin/mockgen -destination=../../usecase/mock/outbox.go -package=mock github.com/hizu77/library-service/internal/infra/repository OutboxRepository
 
 type (
 	OutboxRepository interface {

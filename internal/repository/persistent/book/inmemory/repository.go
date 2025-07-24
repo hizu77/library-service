@@ -1,8 +1,9 @@
 package book
 
 import (
-	"github.com/hizu77/library-service/internal/model/db"
 	"sync"
+
+	dbmodel "github.com/hizu77/library-service/internal/model/db"
 
 	"github.com/hizu77/library-service/internal/repository"
 )

@@ -90,3 +90,4 @@ build:
 	mkdir -p ./internal/usecase/mock
 	cd internal/repository && go generate
 	cd pkg/transactor && go generate
+	cd internal/infra/repository && go generate

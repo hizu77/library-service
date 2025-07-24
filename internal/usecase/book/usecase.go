@@ -1,6 +1,7 @@
 package book
 
 import (
+	outboxRepo "github.com/hizu77/library-service/internal/infra/repository"
 	"github.com/hizu77/library-service/internal/repository"
 	"github.com/hizu77/library-service/internal/usecase"
 	"github.com/hizu77/library-service/pkg/transactor"
@@ -14,6 +15,7 @@ type UseCaseImpl struct {
 	bookRepository   repository.BookRepository
 	authorRepository repository.AuthorRepository
 	transactor       transactor.Transactor
+	outboxRepository outboxRepo.OutboxRepository
 }
 
 func NewUseCase(
@@ -21,11 +23,13 @@ func NewUseCase(
 	authorRepository repository.AuthorRepository,
 	bookRepository repository.BookRepository,
 	transactor transactor.Transactor,
+	outboxRepository outboxRepo.OutboxRepository,
 ) *UseCaseImpl {
 	return &UseCaseImpl{
 		logger:           zap,
 		bookRepository:   bookRepository,
 		authorRepository: authorRepository,
 		transactor:       transactor,
+		outboxRepository: outboxRepository,
 	}
 }

@@ -42,8 +42,8 @@ func (i *Impl) SendMessage(ctx context.Context, idKey string, kind outbox.Kind, 
 
 	sql, args, err := i.Builder.
 		Insert(TableName).
-		Columns(IdempotencyKey, Kind, Data).
-		Values(idKey, kind, msg).
+		Columns(IdempotencyKey, Kind, Data, Status).
+		Values(idKey, kind, msg, "CREATED").
 		Suffix("ON CONFLICT (" + IdempotencyKey + ") DO NOTHING").
 		ToSql()
 	if err != nil {
@@ -110,7 +110,7 @@ WHERE idempotency_key IN (
 		var kind outbox.Kind
 		var data []byte
 
-		if err := rows.Scan(&idempotencyKey, &kind, &data); err != nil {
+		if err := rows.Scan(&idempotencyKey, &data, &kind); err != nil {
 			return nil, err
 		}
 
