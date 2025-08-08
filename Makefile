@@ -58,7 +58,7 @@ bin-deps: .bin-deps
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0 && \
 	go install golang.org/x/tools/cmd/goimports@v0.19.0 && \
 	go install github.com/envoyproxy/protoc-gen-validate@v1.2.1 && \
-	go install go.uber.org/mock/mockgen@latest && \
+	go install go.uber.org/mock/mockgen@latest
 
 .create-bin:
 	rm -rf ./bin
