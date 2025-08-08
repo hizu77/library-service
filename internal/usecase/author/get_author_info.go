@@ -16,11 +16,16 @@ func (u *UseCaseImpl) GetAuthorInfo(ctx context.Context, id string) (entity.Auth
 		var txErr error
 		outAuthor, txErr = u.authorRepository.GetAuthor(ctx, id)
 		if txErr != nil {
-			u.logger.Error("authorRepository.GetAuthor", zap.Error(txErr))
+			u.logger.Error(
+				"authorRepository.GetAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", outAuthor.ID),
+			)
+
 			return txErr
 		}
 
-		u.logger.Info("GetAuthorInfo", zap.String("ID", author.ID))
+		u.logger.Info("GetAuthorInfo", zap.String("author_id", author.ID))
 
 		return nil
 	})

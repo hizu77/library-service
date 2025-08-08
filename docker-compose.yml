@@ -10,9 +10,28 @@ services:
     networks:
       - internal
 
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - library-logs:/var/log
+      - ./infra/promtail/config.yaml:/etc/promtail/config.yaml
+    command: -config.file=/etc/promatail/config.yaml
+    networks:
+      - internal
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - internal
+
 volumes:
   postgres-data:
+  library-logs:
 
 networks:
   internal:
     driver: bridge
+

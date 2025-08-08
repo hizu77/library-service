@@ -14,14 +14,18 @@ func (u *UseCaseImpl) ChangeAuthorInfo(ctx context.Context, author entity.Author
 		var txErr error
 		outAuthor, txErr = u.authorRepository.UpdateAuthor(ctx, author)
 		if txErr != nil {
-			u.logger.Error("authorRepository.UpdateAuthor", zap.Error(txErr))
+			u.logger.Error(
+				"authorRepository.UpdateAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", outAuthor.ID),
+			)
+
 			return txErr
 		}
 
-		u.logger.Info("ChangeAuthorInfo", zap.String("ID", outAuthor.ID))
+		u.logger.Info("ChangeAuthorInfo", zap.String("author_id", outAuthor.ID))
 
 		return nil
-
 	})
 	if err != nil {
 		return entity.Author{}, err

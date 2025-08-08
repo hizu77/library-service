@@ -1,0 +1,28 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: library-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: library
+          __path__: /app/logs/library/library.log
+          expressions:
+            level: level
+            trace_id: trace_id
+            book_id: book_id
+            author_id: author_id
+      - labels:
+          level:
+          trace_id:
+          book_id:
+          author_id:

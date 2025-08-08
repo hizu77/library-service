@@ -14,17 +14,30 @@ func (u *UseCaseImpl) GetAuthorBooks(ctx context.Context, id string) ([]entity.B
 		var txErr error
 
 		if _, txErr = u.authorRepository.GetAuthor(ctx, id); txErr != nil {
-			u.logger.Error("authorRepository.GetAuthor", zap.String("id", id))
+			u.logger.Error(
+				"authorRepository.GetAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", id),
+			)
+
 			return txErr
 		}
 
 		outBooks, txErr = u.bookRepository.GetBooksByAuthorID(ctx, id)
 		if txErr != nil {
-			u.logger.Error("bookRepository.GetBooksByAuthor", zap.String("id", id), zap.Error(txErr))
+			u.logger.Error(
+				"bookRepository.GetBooksByAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", id),
+			)
+
 			return txErr
 		}
 
-		u.logger.Info("GetAuthorBooks", zap.String("ID", id))
+		u.logger.Info(
+			"GetAuthorBooks",
+			zap.String("author_id", id),
+		)
 
 		return nil
 	})

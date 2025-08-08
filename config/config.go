@@ -14,6 +14,7 @@ type (
 		HTTP
 		Postgres
 		Outbox
+		Logger
 	}
 
 	GRPC struct {
@@ -36,6 +37,10 @@ type (
 		BatchSize       int           `env:"OUTBOX_BATCH_SIZE"`
 		WaitTimeMS      time.Duration `env:"OUTBOX_WAIT_TIME_MS"`
 		InProgressTTLMS time.Duration `env:"OUTBOX_IN_PROGRESS_TTL_MS"`
+	}
+
+	Logger struct {
+		LogFilePath string `env:"LOG_PATH"`
 	}
 )
 

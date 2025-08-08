@@ -21,14 +21,24 @@ func (u *UseCaseImpl) AddBook(ctx context.Context, book entity.Book) (entity.Boo
 		for i := range book.AuthorsIDs {
 			_, txErr = u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
 			if txErr != nil {
-				u.logger.Error("authorRepository.GetAuthor", zap.Error(txErr))
+				u.logger.Error(
+					"authorRepository.GetAuthor",
+					zap.Error(txErr),
+					zap.String("author_id", book.AuthorsIDs[i]),
+				)
+
 				return txErr
 			}
 		}
 
 		outBook, txErr = u.bookRepository.AddBook(ctx, book)
 		if txErr != nil {
-			u.logger.Error("bookRepository.AddBook", zap.Error(txErr))
+			u.logger.Error(
+				"bookRepository.AddBook",
+				zap.Error(txErr),
+				zap.String("book_id", book.ID),
+			)
+
 			return txErr
 		}
 
@@ -45,7 +55,10 @@ func (u *UseCaseImpl) AddBook(ctx context.Context, book entity.Book) (entity.Boo
 			return txErr
 		}
 
-		u.logger.Info("AddBook", zap.String("ID", outBook.ID))
+		u.logger.Info(
+			"AddBook",
+			zap.String("book_id", outBook.ID),
+		)
 
 		return nil
 	})

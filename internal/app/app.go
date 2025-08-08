@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/hizu77/library-service/db"
+	"github.com/hizu77/library-service/internal/bootstrap"
 	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
 	"github.com/hizu77/library-service/pkg/postgres"
 	"github.com/hizu77/library-service/pkg/transactor"
@@ -27,7 +28,7 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	logger, err := zap.NewProduction()
+	logger, err := bootstrap.InitLogger(cfg.Logger.LogFilePath)
 	if err != nil {
 		log.Fatalf("can not initialize logger: %s", err)
 	}

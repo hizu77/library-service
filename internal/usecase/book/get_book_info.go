@@ -14,11 +14,19 @@ func (u *UseCaseImpl) GetBookInfo(ctx context.Context, id string) (entity.Book, 
 		var txErr error
 		outBook, txErr = u.bookRepository.GetBook(ctx, id)
 		if txErr != nil {
-			u.logger.Error("bookRepository.GetBook", zap.Error(txErr))
+			u.logger.Error(
+				"bookRepository.GetBook",
+				zap.Error(txErr),
+				zap.String("book_id", id),
+			)
+
 			return txErr
 		}
 
-		u.logger.Info("GetBookInfo", zap.String("ID", id))
+		u.logger.Info(
+			"GetBookInfo",
+			zap.String("book_id", id),
+		)
 
 		return nil
 	})

@@ -20,7 +20,12 @@ func (u *UseCaseImpl) RegisterAuthor(ctx context.Context, author entity.Author) 
 		var txErr error
 		outAuthor, txErr = u.authorRepository.AddAuthor(ctx, author)
 		if txErr != nil {
-			u.logger.Error("authorRepository.AddAuthor", zap.Error(txErr))
+			u.logger.Error(
+				"authorRepository.AddAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", author.ID),
+			)
+
 			return txErr
 		}
 
@@ -37,7 +42,10 @@ func (u *UseCaseImpl) RegisterAuthor(ctx context.Context, author entity.Author) 
 			return txErr
 		}
 
-		u.logger.Info("RegisterAuthor", zap.String("ID", outAuthor.ID))
+		u.logger.Info(
+			"RegisterAuthor",
+			zap.String("author_id", outAuthor.ID),
+		)
 
 		return nil
 	})
