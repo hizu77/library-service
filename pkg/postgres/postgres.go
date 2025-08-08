@@ -25,9 +25,12 @@ type Postgres struct {
 	logger  *zap.Logger
 }
 
-func New(ctx context.Context, url string, options ...Option) (*Postgres, error) {
-	logger, _ := zap.NewDevelopment()
-
+func New(
+	ctx context.Context,
+	url string,
+	logger *zap.Logger,
+	options ...Option,
+) (*Postgres, error) {
 	pg := &Postgres{
 		maxPoolSize:  _defaultMaxPoolSize,
 		connAttempts: _defaultMaxConnAttempts,

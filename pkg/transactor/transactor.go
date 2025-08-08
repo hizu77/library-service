@@ -27,11 +27,11 @@ func (i *Impl) WithTx(ctx context.Context, function func(ctx context.Context) er
 
 	defer func() {
 		if txErr != nil {
-			tx.Rollback(ctxWithTx)
+			_ = tx.Rollback(ctxWithTx)
 			return
 		}
 
-		tx.Commit(ctxWithTx)
+		_ = tx.Commit(ctxWithTx)
 	}()
 
 	err = function(ctxWithTx)

@@ -64,7 +64,7 @@ bin-deps: .bin-deps
 	rm -rf ./bin
 	mkdir -p ./bin
 
-generate: bin-deps .generate .generate-mocks build
+generate: bin-deps .generate
 fast-generate: .generate
 
 .generate:
@@ -85,7 +85,7 @@ fast-generate: .generate
 build:
 	go build -o ./bin/library ./cmd/library/
 
-.generate-mocks:
+generate-mocks:
 	rm -rf ./internal/usecase/mock
 	mkdir -p ./internal/usecase/mock
 	cd internal/repository && go generate

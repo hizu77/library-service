@@ -33,9 +33,9 @@ func (i *Impl) SendMessage(ctx context.Context, idKey string, kind outbox.Kind, 
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -72,15 +72,15 @@ func (i *Impl) GetMessages(ctx context.Context, batchSize int, inProgressTTL tim
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
 
-	//IDK HOW TO DO THIS QUERY USING SQUIRREL
-	//TODO FIX USING SQUIRREL
+	// IDK HOW TO DO THIS QUERY USING SQUIRREL
+	// TODO FIX USING SQUIRREL
 	const sql = `
 UPDATE outbox
 SET status = 'IN_PROGRESS'
@@ -138,9 +138,9 @@ func (i *Impl) MarkMessageAsProcessed(ctx context.Context, idKeys []string) (txE
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}

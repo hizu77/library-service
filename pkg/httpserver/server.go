@@ -28,9 +28,7 @@ type Server struct {
 	shutdownTimeout time.Duration
 }
 
-func New(opts ...Option) *Server {
-	logger, _ := zap.NewDevelopment()
-
+func New(logger *zap.Logger, opts ...Option) *Server {
 	server := &Server{
 		App:             nil,
 		notify:          make(chan error, 1),

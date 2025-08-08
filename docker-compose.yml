@@ -1,4 +1,21 @@
 services:
+  library:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - library-logs:/app/logs
+    ports:
+      - "${GRPC_GATEWAY_PORT}:${GRPC_GATEWAY_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    networks:
+      - internal
+
   postgres:
     image: postgres:latest
     env_file:
@@ -7,6 +24,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - internal
 
@@ -15,7 +37,7 @@ services:
     volumes:
       - library-logs:/var/log
       - ./infra/promtail/config.yaml:/etc/promtail/config.yaml
-    command: -config.file=/etc/promatail/config.yaml
+    command: -config.file=/etc/promtail/config.yaml
     networks:
       - internal
 
@@ -27,11 +49,21 @@ services:
     networks:
       - internal
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./infra/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - internal
+
 volumes:
   postgres-data:
   library-logs:
+  grafana-storage:
 
 networks:
   internal:
     driver: bridge
-

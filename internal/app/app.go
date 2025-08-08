@@ -36,7 +36,12 @@ func Run(cfg *config.Config) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	pg, err := postgres.New(ctx, cfg.Postgres.URL, postgres.MaxPoolSize(cfg.Postgres.PoolMax))
+	pg, err := postgres.New(
+		ctx,
+		cfg.Postgres.URL,
+		logger,
+		postgres.MaxPoolSize(cfg.Postgres.PoolMax),
+	)
 	if err != nil {
 		logger.Fatal("can not initialize postgres", zap.Error(err))
 	}
@@ -60,6 +65,7 @@ func Run(cfg *config.Config) {
 	grpc.NewRouter(grpcServer.App, authorUseCase, bookUseCase, logger)
 
 	gateway := httpserver.New(
+		logger,
 		httpserver.Port(cfg.GRPC.GatewayPort),
 		httpserver.Prefork(cfg.HTTP.UsePrefork))
 	err = http.NewRouter(ctx, gateway.App, net.JoinHostPort(cfg.GRPC.Host, cfg.GRPC.Port))

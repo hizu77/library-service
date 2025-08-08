@@ -25,9 +25,9 @@ func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author)
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -37,7 +37,6 @@ func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author)
 		Set(Name, author.Name).
 		Where(squirrel.Eq{ID: author.ID}).
 		ToSql()
-
 	if err != nil {
 		return entity.Author{}, err
 	}

@@ -25,9 +25,9 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -37,7 +37,6 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity
 		From(TableName).
 		Where(squirrel.Eq{ID: id}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}
@@ -60,7 +59,6 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity
 		From(AuthorBookTableName).
 		Where(squirrel.Eq{BookID: id}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}

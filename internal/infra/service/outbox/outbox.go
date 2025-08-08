@@ -56,7 +56,7 @@ func (i *Impl) worker(
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			err := i.transactor.WithTx(ctx, func(ctx context.Context) error {
+			txErr := i.transactor.WithTx(ctx, func(ctx context.Context) error {
 				messages, err := i.outboxRepository.GetMessages(ctx, batchSize, inProgressTTL)
 				if err != nil {
 					i.logger.Error("GetMessages", zap.Error(err))
@@ -91,8 +91,8 @@ func (i *Impl) worker(
 				return nil
 			})
 
-			if err != nil {
-				i.logger.Error("Worker error", zap.Error(err))
+			if txErr != nil {
+				i.logger.Error("Worker error", zap.Error(txErr))
 			}
 		}
 	}

@@ -23,9 +23,9 @@ func (r *RepositoryImpl) AddAuthor(ctx context.Context, author entity.Author) (o
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -35,7 +35,6 @@ func (r *RepositoryImpl) AddAuthor(ctx context.Context, author entity.Author) (o
 		Columns(ID, Name).
 		Values(author.ID, author.Name).
 		ToSql()
-
 	if err != nil {
 		return entity.Author{}, err
 	}

@@ -29,7 +29,7 @@ func Handler() GlobalHandler {
 
 func authorHandler() KindHandler {
 	// TODO KAFKA CONSUMER
-	return func(ctx context.Context, data []byte) error {
+	return func(_ context.Context, data []byte) error {
 		author := entity.Author{}
 		err := json.Unmarshal(data, &author)
 		if err != nil {
@@ -43,8 +43,8 @@ func authorHandler() KindHandler {
 }
 
 func bookHandler() KindHandler {
-	//TODO KAFKA CONSUMER
-	return func(ctx context.Context, data []byte) error {
+	// TODO KAFKA CONSUMER
+	return func(_ context.Context, data []byte) error {
 		book := entity.Book{}
 		err := json.Unmarshal(data, &book)
 		if err != nil {

@@ -23,9 +23,9 @@ func (r *RepositoryImpl) UpdateBook(ctx context.Context, book entity.Book) (outB
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -35,7 +35,6 @@ func (r *RepositoryImpl) UpdateBook(ctx context.Context, book entity.Book) (outB
 		Set(Name, book.Name).
 		Where(squirrel.Eq{ID: book.ID}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}
@@ -53,7 +52,6 @@ func (r *RepositoryImpl) UpdateBook(ctx context.Context, book entity.Book) (outB
 		Delete(AuthorBookTableName).
 		Where(squirrel.Eq{BookID: book.ID}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}

@@ -23,9 +23,9 @@ func (r *RepositoryImpl) AddBook(ctx context.Context, book entity.Book) (outBook
 
 		defer func() {
 			if txErr != nil {
-				tx.Rollback(ctx)
+				_ = tx.Rollback(ctx)
 			} else {
-				tx.Commit(ctx)
+				_ = tx.Commit(ctx)
 			}
 		}()
 	}
@@ -35,7 +35,6 @@ func (r *RepositoryImpl) AddBook(ctx context.Context, book entity.Book) (outBook
 		Columns(ID, Name).
 		Values(book.ID, book.Name).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}
