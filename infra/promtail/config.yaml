@@ -15,7 +15,7 @@ scrape_configs:
           - localhost
         labels:
           job: library
-          __path__: /app/logs/library/library.log
+          __path__: /var/log/library.log
           expressions:
             level: level
             trace_id: trace_id
