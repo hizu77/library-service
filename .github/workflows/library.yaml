@@ -26,6 +26,7 @@ jobs:
           cache-dependency-path: ./go.sum
       - name: Generate code
         run: |
+          make bin-deps
           make build
       - name: Dependencies
         working-directory: ./
