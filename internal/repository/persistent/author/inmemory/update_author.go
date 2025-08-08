@@ -3,8 +3,9 @@ package author
 import (
 	"context"
 
+	"github.com/hizu77/library-service/internal/model/db/mapper"
+
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/repository/dbmodel/mapper"
 )
 
 func (a *RepositoryImpl) UpdateAuthor(_ context.Context, author entity.Author) (entity.Author, error) {

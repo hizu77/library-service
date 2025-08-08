@@ -58,13 +58,13 @@ bin-deps: .bin-deps
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0 && \
 	go install golang.org/x/tools/cmd/goimports@v0.19.0 && \
 	go install github.com/envoyproxy/protoc-gen-validate@v1.2.1 && \
-	go install go.uber.org/mock/mockgen@latest && \
+	go install go.uber.org/mock/mockgen@latest
 
 .create-bin:
 	rm -rf ./bin
 	mkdir -p ./bin
 
-generate: bin-deps .generate .generate-mocks build
+generate: bin-deps .generate
 fast-generate: .generate
 
 .generate:
@@ -85,7 +85,9 @@ fast-generate: .generate
 build:
 	go build -o ./bin/library ./cmd/library/
 
-.generate-mocks:
+generate-mocks:
 	rm -rf ./internal/usecase/mock
 	mkdir -p ./internal/usecase/mock
 	cd internal/repository && go generate
+	cd pkg/transactor && go generate
+	cd internal/infra/repository && go generate

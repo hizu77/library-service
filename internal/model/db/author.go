@@ -1,6 +1,6 @@
 package dbmodel
 
-type DBAuthor struct {
+type Author struct {
 	ID   string
 	Name string
 }

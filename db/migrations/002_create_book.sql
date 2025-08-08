@@ -24,5 +24,7 @@ CREATE OR REPLACE TRIGGER trigger_update_book_timestamp
 EXECUTE FUNCTION update_book_timestamp();
 
 -- +goose Down
+DROP TRIGGER IF EXISTS trigger_update_book_timestamp ON book;
+DROP FUNCTION IF EXISTS update_book_timestamp;
 DROP TABLE IF EXISTS book;
 

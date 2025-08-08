@@ -4,23 +4,39 @@ import (
 	"context"
 	db "database/sql"
 	"errors"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/library-service/internal/entity"
+	"github.com/hizu77/library-service/pkg/transactor"
+	"github.com/jackc/pgx/v5"
 )
 
-func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, error) {
-	tx, err := r.Pool.Begin(ctx)
-	if err != nil {
-		return entity.Book{}, err
+func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (outBook entity.Book, txErr error) {
+	var (
+		tx  pgx.Tx
+		err error
+	)
+
+	if tx, err = transactor.ExtractTx(ctx); err != nil {
+		tx, err = r.Pool.Begin(ctx)
+		if err != nil {
+			return entity.Book{}, err
+		}
+
+		defer func() {
+			if txErr != nil {
+				_ = tx.Rollback(ctx)
+			} else {
+				_ = tx.Commit(ctx)
+			}
+		}()
 	}
-	defer tx.Rollback(ctx)
 
 	sql, args, err := r.Builder.
 		Select(Name).
 		From(TableName).
 		Where(squirrel.Eq{ID: id}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}
@@ -43,7 +59,6 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, e
 		From(AuthorBookTableName).
 		Where(squirrel.Eq{BookID: id}).
 		ToSql()
-
 	if err != nil {
 		return entity.Book{}, err
 	}
@@ -61,10 +76,6 @@ func (r *RepositoryImpl) GetBook(ctx context.Context, id string) (entity.Book, e
 		}
 
 		book.AuthorsIDs = append(book.AuthorsIDs, authorID)
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return entity.Book{}, err
 	}
 
 	return book, nil

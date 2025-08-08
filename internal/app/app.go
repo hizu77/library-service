@@ -2,13 +2,18 @@ package app
 
 import (
 	"context"
-	"github.com/hizu77/library-service/db"
-	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
-	"github.com/hizu77/library-service/pkg/postgres"
 	"net"
 	"os/signal"
 	"syscall"
 
+	"github.com/hizu77/library-service/db"
+	"github.com/hizu77/library-service/internal/bootstrap"
+	authorRepo "github.com/hizu77/library-service/internal/repository/persistent/author/postgres"
+	"github.com/hizu77/library-service/pkg/postgres"
+	"github.com/hizu77/library-service/pkg/transactor"
+
+	outboxRepo "github.com/hizu77/library-service/internal/infra/repository/outbox"
+	outboxService "github.com/hizu77/library-service/internal/infra/service/outbox"
 	bookRepo "github.com/hizu77/library-service/internal/repository/persistent/book/postgres"
 
 	"github.com/hizu77/library-service/config"
@@ -23,7 +28,7 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	logger, err := zap.NewProduction()
+	logger, err := bootstrap.InitLogger(cfg.Logger.LogFilePath)
 	if err != nil {
 		log.Fatalf("can not initialize logger: %s", err)
 	}
@@ -31,7 +36,12 @@ func Run(cfg *config.Config) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	pg, err := postgres.New(ctx, cfg.Postgres.URL, postgres.MaxPoolSize(cfg.Postgres.PoolMax))
+	pg, err := postgres.New(
+		ctx,
+		cfg.Postgres.URL,
+		logger,
+		postgres.MaxPoolSize(cfg.Postgres.PoolMax),
+	)
 	if err != nil {
 		logger.Fatal("can not initialize postgres", zap.Error(err))
 	}
@@ -41,9 +51,13 @@ func Run(cfg *config.Config) {
 
 	authorRepository := authorRepo.New(pg)
 	bookRepository := bookRepo.New(pg)
+	outboxRepository := outboxRepo.New(pg)
 
-	authorUseCase := auc.NewUseCase(logger, authorRepository)
-	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository)
+	tx := transactor.New(pg.Pool)
+
+	outbox := outboxService.New(outboxRepository, logger, tx, outboxService.Handler())
+	authorUseCase := auc.NewUseCase(logger, authorRepository, tx, outboxRepository)
+	bookUseCase := buc.NewUseCase(logger, authorRepository, bookRepository, tx, outboxRepository)
 
 	grpcServer := grpcserver.New(
 		grpcserver.Port(cfg.GRPC.Port),
@@ -51,6 +65,7 @@ func Run(cfg *config.Config) {
 	grpc.NewRouter(grpcServer.App, authorUseCase, bookUseCase, logger)
 
 	gateway := httpserver.New(
+		logger,
 		httpserver.Port(cfg.GRPC.GatewayPort),
 		httpserver.Prefork(cfg.HTTP.UsePrefork))
 	err = http.NewRouter(ctx, gateway.App, net.JoinHostPort(cfg.GRPC.Host, cfg.GRPC.Port))
@@ -60,6 +75,13 @@ func Run(cfg *config.Config) {
 
 	grpcServer.Start()
 	gateway.Start()
+	outbox.Start(
+		ctx,
+		cfg.Outbox.Workers,
+		cfg.Outbox.BatchSize,
+		cfg.Outbox.WaitTimeMS,
+		cfg.Outbox.InProgressTTLMS,
+	)
 
 	select {
 	case <-ctx.Done():
@@ -79,4 +101,6 @@ func Run(cfg *config.Config) {
 	if err = grpcServer.Shutdown(); err != nil {
 		logger.Error("grpc server shutdown error", zap.Error(err))
 	}
+
+	outbox.Stop()
 }
