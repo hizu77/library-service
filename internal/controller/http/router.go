@@ -12,7 +12,8 @@ import (
 func NewRouter(
 	ctx context.Context,
 	app fiber.Router,
-	grpcAddr string) error {
+	grpcAddr string,
+) error {
 	mux := runtime.NewServeMux()
 	{
 		err := v1.NewLibraryRoutes(ctx, mux, grpcAddr)

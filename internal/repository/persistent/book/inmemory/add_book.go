@@ -3,8 +3,9 @@ package book
 import (
 	"context"
 
+	"github.com/hizu77/library-service/internal/model/db/mapper"
+
 	"github.com/hizu77/library-service/internal/entity"
-	"github.com/hizu77/library-service/internal/repository/dbmodel/mapper"
 )
 
 func (b *RepositoryImpl) AddBook(_ context.Context, book entity.Book) (entity.Book, error) {

@@ -8,14 +8,28 @@ import (
 )
 
 func (u *UseCaseImpl) ChangeAuthorInfo(ctx context.Context, author entity.Author) (entity.Author, error) {
-	v, err := u.authorRepository.UpdateAuthor(ctx, author)
+	var outAuthor entity.Author
 
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+		outAuthor, txErr = u.authorRepository.UpdateAuthor(ctx, author)
+		if txErr != nil {
+			u.logger.Error(
+				"authorRepository.UpdateAuthor",
+				zap.Error(txErr),
+				zap.String("author_id", outAuthor.ID),
+			)
+
+			return txErr
+		}
+
+		u.logger.Info("ChangeAuthorInfo", zap.String("author_id", outAuthor.ID))
+
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("authorRepository.UpdateAuthor", zap.Error(err))
 		return entity.Author{}, err
 	}
 
-	u.logger.Info("ChangeAuthorInfo", zap.String("ID", v.ID))
-
-	return v, nil
+	return outAuthor, nil
 }

@@ -2,17 +2,12 @@ package book
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/library-service/internal/entity"
 )
 
 func (r *RepositoryImpl) GetBooksByAuthorID(ctx context.Context, authorID string) ([]entity.Book, error) {
-	tx, err := r.Pool.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback(ctx)
-
 	sql, args, err := r.Builder.
 		Select(
 			"b."+ID,
@@ -29,7 +24,7 @@ func (r *RepositoryImpl) GetBooksByAuthorID(ctx context.Context, authorID string
 		return nil, err
 	}
 
-	rows, err := tx.Query(ctx, sql, args...)
+	rows, err := r.Pool.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -43,10 +38,6 @@ func (r *RepositoryImpl) GetBooksByAuthorID(ctx context.Context, authorID string
 		}
 
 		books = append(books, book)
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return nil, err
 	}
 
 	return books, nil

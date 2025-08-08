@@ -1,21 +1,22 @@
 package postgres
 
 import (
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Option func(*Postgres)
 
-func MaxPoolSize(max int) Option {
+func MaxPoolSize(maxSize int) Option {
 	return func(p *Postgres) {
-		p.maxPoolSize = max
+		p.maxPoolSize = maxSize
 	}
 }
 
-func MaxConnAttempts(max int) Option {
+func MaxConnAttempts(maxAttempts int) Option {
 	return func(p *Postgres) {
-		p.connAttempts = max
+		p.connAttempts = maxAttempts
 	}
 }
 

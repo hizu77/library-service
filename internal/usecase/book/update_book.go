@@ -8,22 +8,44 @@ import (
 )
 
 func (u *UseCaseImpl) UpdateBook(ctx context.Context, book entity.Book) (entity.Book, error) {
-	for i := range book.AuthorsIDs {
-		_, err := u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
-		if err != nil {
-			u.logger.Error("authorRepository.GetAuthor", zap.Error(err))
-			return entity.Book{}, err
+	var outBook entity.Book
+
+	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
+		var txErr error
+		for i := range book.AuthorsIDs {
+			_, txErr = u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
+			if txErr != nil {
+				u.logger.Error(
+					"authorRepository.GetAuthor",
+					zap.Error(txErr),
+					zap.String("author_id", book.AuthorsIDs[i]),
+				)
+
+				return txErr
+			}
 		}
-	}
 
-	v, err := u.bookRepository.UpdateBook(ctx, book)
+		outBook, txErr = u.bookRepository.UpdateBook(ctx, book)
+		if txErr != nil {
+			u.logger.Error(
+				"bookRepository.UpdateBook",
+				zap.Error(txErr),
+				zap.String("book_id", book.ID),
+			)
 
+			return txErr
+		}
+
+		u.logger.Info(
+			"UpdateBook",
+			zap.String("book_id", outBook.ID),
+		)
+
+		return nil
+	})
 	if err != nil {
-		u.logger.Error("bookRepository.UpdateBook", zap.Error(err))
 		return entity.Book{}, err
 	}
 
-	u.logger.Info("UpdateBook", zap.String("ID", v.ID))
-
-	return v, nil
+	return outBook, nil
 }
