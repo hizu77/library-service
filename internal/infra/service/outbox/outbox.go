@@ -87,10 +87,12 @@ func (i *Impl) worker(ctx context.Context,
 					return err
 				}
 
-				i.logger.Info(
-					"Mark as processed completed",
-					zap.Strings("Keys", successKeys),
-				)
+				if len(successKeys) > 0 {
+					i.logger.Info(
+						"Mark as processed completed",
+						zap.Strings("Keys", successKeys),
+					)
+				}
 
 				return nil
 			})
