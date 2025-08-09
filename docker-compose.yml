@@ -32,6 +32,14 @@ services:
     networks:
       - internal
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.53
+    ports:
+      - "${JAEGER_WEB_PORT}:${JAEGER_WEB_PORT}"
+      - "${JAEGER_TRACE_PORT}:${JAEGER_TRACE_PORT}"
+    networks:
+      - internal
+
   promtail:
     image: grafana/promtail:2.9.2
     volumes:

@@ -2,8 +2,6 @@ package author
 
 import (
 	"context"
-	db "database/sql"
-	"errors"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/library-service/internal/entity"
@@ -41,9 +39,8 @@ func (r *RepositoryImpl) UpdateAuthor(ctx context.Context, author entity.Author)
 		return entity.Author{}, err
 	}
 
-	_, err = tx.Exec(ctx, sql, args...)
-
-	if errors.Is(err, db.ErrNoRows) {
+	cmdTag, err := tx.Exec(ctx, sql, args...)
+	if cmdTag.RowsAffected() == 0 {
 		return entity.Author{}, entity.ErrAuthorNotFound
 	}
 
