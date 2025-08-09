@@ -12,8 +12,16 @@ import (
 )
 
 func (c *ControllerImpl) UpdateBook(ctx context.Context, request *generated.UpdateBookRequest) (*generated.UpdateBookResponse, error) {
+	ctx, span := tracer.Start(ctx, "HandleUpdateBook")
+	defer span.End()
+
 	if err := validateUpdateBookRequest(request); err != nil {
-		c.zap.Error("validate update book request", zap.Error(err))
+		c.zap.Error(
+			"Validate update book request",
+			zap.Error(err),
+			zap.String("trace_id", span.SpanContext().TraceID().String()),
+		)
+
 		return nil, err
 	}
 
@@ -22,7 +30,6 @@ func (c *ControllerImpl) UpdateBook(ctx context.Context, request *generated.Upda
 		Name:       request.GetName(),
 		AuthorsIDs: request.GetAuthorIds(),
 	})
-
 	if err != nil {
 		return nil, c.convertErr(err)
 	}

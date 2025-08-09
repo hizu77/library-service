@@ -11,13 +11,20 @@ import (
 )
 
 func (c *ControllerImpl) GetAuthorInfo(ctx context.Context, request *generated.GetAuthorInfoRequest) (*generated.GetAuthorInfoResponse, error) {
+	ctx, span := tracer.Start(ctx, "GetAuthorInfo")
+	defer span.End()
+
 	if err := validateGetAuthorInfoRequest(request); err != nil {
-		c.zap.Error("validate get author info request", zap.Error(err))
+		c.zap.Error(
+			"Validate get author info request",
+			zap.Error(err),
+			zap.String("trace_id", span.SpanContext().TraceID().String()),
+		)
+
 		return nil, err
 	}
 
 	author, err := c.authorUseCase.GetAuthorInfo(ctx, request.GetId())
-
 	if err != nil {
 		return nil, c.convertErr(err)
 	}

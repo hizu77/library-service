@@ -15,6 +15,7 @@ type (
 		Postgres
 		Outbox
 		Logger
+		Tracer
 	}
 
 	GRPC struct {
@@ -41,6 +42,10 @@ type (
 
 	Logger struct {
 		LogFilePath string `env:"LOG_PATH"`
+	}
+
+	Tracer struct {
+		URL string `env:"TRACER_URL"`
 	}
 )
 

@@ -12,8 +12,16 @@ import (
 )
 
 func (c *ControllerImpl) ChangeAuthorInfo(ctx context.Context, request *generated.ChangeAuthorInfoRequest) (*generated.ChangeAuthorInfoResponse, error) {
+	ctx, span := tracer.Start(ctx, "HandleChangeAuthorInfo")
+	defer span.End()
+
 	if err := validateChangeAuthorInfoRequest(request); err != nil {
-		c.zap.Error("validate change author info request", zap.Error(err))
+		c.zap.Error(
+			"Validate change author info request",
+			zap.Error(err),
+			zap.String("trace_id", span.SpanContext().TraceID().String()),
+		)
+
 		return nil, err
 	}
 
@@ -21,7 +29,6 @@ func (c *ControllerImpl) ChangeAuthorInfo(ctx context.Context, request *generate
 		ID:   request.GetId(),
 		Name: request.GetName(),
 	})
-
 	if err != nil {
 		return nil, c.convertErr(err)
 	}
