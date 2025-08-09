@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
@@ -11,6 +12,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 )
+
+const FlushTimeout = time.Second * 5
 
 func InitTracer(ctx context.Context, url string) (*trace.TracerProvider, error) {
 	headers := map[string]string{

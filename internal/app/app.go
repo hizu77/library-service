@@ -110,9 +110,14 @@ func Run(cfg *config.Config) {
 		logger.Error("grpc server shutdown error", zap.Error(err))
 	}
 
-	if err = tracer.Shutdown(ctx); err != nil {
+	outbox.Stop()
+
+	flushCtx, cancel := context.WithTimeout(
+		context.Background(),
+		bootstrap.FlushTimeout,
+	)
+	defer cancel()
+	if err = tracer.Shutdown(flushCtx); err != nil {
 		logger.Error("tracer shutdown error", zap.Error(err))
 	}
-
-	outbox.Stop()
 }
