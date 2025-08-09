@@ -14,6 +14,8 @@ func (c *ControllerImpl) GetAuthorBooks(request *generated.GetAuthorBooksRequest
 	defer span.End()
 
 	if err := validateGetAuthorBooksRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate get author books request",
 			zap.Error(err),

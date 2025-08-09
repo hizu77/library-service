@@ -16,6 +16,8 @@ func (c *ControllerImpl) UpdateBook(ctx context.Context, request *generated.Upda
 	defer span.End()
 
 	if err := validateUpdateBookRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate update book request",
 			zap.Error(err),

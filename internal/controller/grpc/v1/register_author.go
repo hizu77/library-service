@@ -16,6 +16,8 @@ func (c *ControllerImpl) RegisterAuthor(ctx context.Context, request *generated.
 	defer span.End()
 
 	if err := validateRegisterAuthorRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate register author request",
 			zap.Error(err),

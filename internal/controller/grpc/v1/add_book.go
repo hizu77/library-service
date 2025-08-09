@@ -16,6 +16,8 @@ func (c *ControllerImpl) AddBook(ctx context.Context, request *generated.AddBook
 	defer span.End()
 
 	if err := validateAddBookRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate add book request",
 			zap.Error(err),

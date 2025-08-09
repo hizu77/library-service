@@ -16,6 +16,8 @@ func (c *ControllerImpl) ChangeAuthorInfo(ctx context.Context, request *generate
 	defer span.End()
 
 	if err := validateChangeAuthorInfoRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate change author info request",
 			zap.Error(err),

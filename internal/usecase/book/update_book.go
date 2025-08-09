@@ -20,6 +20,12 @@ func (u *UseCaseImpl) UpdateBook(ctx context.Context, book entity.Book) (entity.
 	var outBook entity.Book
 	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
 		var txErr error
+
+		_, txErr = u.bookRepository.GetBook(ctx, book.ID)
+		if txErr != nil {
+			return txErr
+		}
+
 		for i := range book.AuthorsIDs {
 			_, txErr = u.authorRepository.GetAuthor(ctx, book.AuthorsIDs[i])
 			if txErr != nil {

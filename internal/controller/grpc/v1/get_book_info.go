@@ -15,6 +15,8 @@ func (c *ControllerImpl) GetBookInfo(ctx context.Context, request *generated.Get
 	defer span.End()
 
 	if err := validateGetBookInfoRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate get book info request",
 			zap.Error(err),

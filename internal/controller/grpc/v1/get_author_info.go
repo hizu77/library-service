@@ -15,6 +15,8 @@ func (c *ControllerImpl) GetAuthorInfo(ctx context.Context, request *generated.G
 	defer span.End()
 
 	if err := validateGetAuthorInfoRequest(request); err != nil {
+		span.RecordError(err)
+
 		c.zap.Error(
 			"Validate get author info request",
 			zap.Error(err),
