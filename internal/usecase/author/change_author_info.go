@@ -20,12 +20,6 @@ func (u *UseCaseImpl) ChangeAuthorInfo(ctx context.Context, author entity.Author
 	var outAuthor entity.Author
 	err := u.transactor.WithTx(ctx, func(ctx context.Context) error {
 		var txErr error
-
-		_, txErr = u.authorRepository.GetAuthor(ctx, author.ID)
-		if txErr != nil {
-			return txErr
-		}
-
 		outAuthor, txErr = u.authorRepository.UpdateAuthor(ctx, author)
 		if txErr != nil {
 			return txErr
