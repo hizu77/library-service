@@ -36,6 +36,14 @@ func Run(cfg *config.Config) {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
+	tracer, err := bootstrap.InitTracer(
+		ctx,
+		cfg.Tracer.URL,
+	)
+	if err != nil {
+		logger.Fatal("can not initialize tracer", zap.Error(err))
+	}
+
 	pg, err := postgres.New(
 		ctx,
 		cfg.Postgres.URL,
@@ -103,4 +111,13 @@ func Run(cfg *config.Config) {
 	}
 
 	outbox.Stop()
+
+	flushCtx, cancel := context.WithTimeout(
+		context.Background(),
+		bootstrap.FlushTimeout,
+	)
+	defer cancel()
+	if err = tracer.Shutdown(flushCtx); err != nil {
+		logger.Error("tracer shutdown error", zap.Error(err))
+	}
 }

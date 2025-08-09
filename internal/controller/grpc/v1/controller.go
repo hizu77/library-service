@@ -3,8 +3,11 @@ package v1
 import (
 	generated "github.com/hizu77/library-service/generated/api/library"
 	"github.com/hizu77/library-service/internal/usecase"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 )
+
+var tracer = otel.Tracer("library-service")
 
 var _ generated.LibraryServer = (*ControllerImpl)(nil)
 
@@ -17,7 +20,8 @@ type ControllerImpl struct {
 func NewControllerImpl(
 	logger *zap.Logger,
 	bookUseCase usecase.BookUseCase,
-	authorUseCase usecase.AuthorUseCase) *ControllerImpl {
+	authorUseCase usecase.AuthorUseCase,
+) *ControllerImpl {
 	return &ControllerImpl{
 		zap:           logger,
 		bookUseCase:   bookUseCase,

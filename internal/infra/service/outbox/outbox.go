@@ -39,8 +39,7 @@ func (i *Impl) Start(
 	}
 }
 
-func (i *Impl) worker(
-	ctx context.Context,
+func (i *Impl) worker(ctx context.Context,
 	batchSize int,
 	waitTime time.Duration,
 	inProgressTTL time.Duration,
@@ -59,7 +58,7 @@ func (i *Impl) worker(
 			txErr := i.transactor.WithTx(ctx, func(ctx context.Context) error {
 				messages, err := i.outboxRepository.GetMessages(ctx, batchSize, inProgressTTL)
 				if err != nil {
-					i.logger.Error("GetMessages", zap.Error(err))
+					i.logger.Error("Get messages", zap.Error(err))
 					return err
 				}
 
@@ -69,13 +68,13 @@ func (i *Impl) worker(
 
 					kindHandler, err := i.GlobalHandler(message.Kind)
 					if err != nil {
-						i.logger.Error("GlobalHandler", zap.Error(err))
+						i.logger.Error("Global handler", zap.Error(err))
 						continue
 					}
 
 					err = kindHandler(ctx, message.RawData)
 					if err != nil {
-						i.logger.Error("KindHandler", zap.Error(err))
+						i.logger.Error("Kind handler", zap.Error(err))
 						continue
 					}
 
@@ -86,6 +85,13 @@ func (i *Impl) worker(
 				if err != nil {
 					i.logger.Error("outboxRepository.MarkMessageAsProcessed", zap.Error(err))
 					return err
+				}
+
+				if len(successKeys) > 0 {
+					i.logger.Info(
+						"Mark as processed completed",
+						zap.Strings("Keys", successKeys),
+					)
 				}
 
 				return nil

@@ -11,13 +11,22 @@ import (
 )
 
 func (c *ControllerImpl) GetBookInfo(ctx context.Context, request *generated.GetBookInfoRequest) (*generated.GetBookInfoResponse, error) {
+	ctx, span := tracer.Start(ctx, "HandleGetBookInfo")
+	defer span.End()
+
 	if err := validateGetBookInfoRequest(request); err != nil {
-		c.zap.Error("validate get book info request", zap.Error(err))
+		span.RecordError(err)
+
+		c.zap.Error(
+			"Validate get book info request",
+			zap.Error(err),
+			zap.String("trace_id", span.SpanContext().TraceID().String()),
+		)
+
 		return nil, err
 	}
 
 	book, err := c.bookUseCase.GetBookInfo(ctx, request.GetId())
-
 	if err != nil {
 		return nil, c.convertErr(err)
 	}

@@ -12,15 +12,24 @@ import (
 )
 
 func (c *ControllerImpl) RegisterAuthor(ctx context.Context, request *generated.RegisterAuthorRequest) (*generated.RegisterAuthorResponse, error) {
+	ctx, span := tracer.Start(ctx, "HandleRegisterAuthor")
+	defer span.End()
+
 	if err := validateRegisterAuthorRequest(request); err != nil {
-		c.zap.Error("validate register author request", zap.Error(err))
+		span.RecordError(err)
+
+		c.zap.Error(
+			"Validate register author request",
+			zap.Error(err),
+			zap.String("trace_id", span.SpanContext().TraceID().String()),
+		)
+
 		return nil, err
 	}
 
 	author, err := c.authorUseCase.RegisterAuthor(ctx, entity.Author{
 		Name: request.GetName(),
 	})
-
 	if err != nil {
 		return nil, c.convertErr(err)
 	}
