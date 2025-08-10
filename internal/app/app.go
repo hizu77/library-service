@@ -69,20 +69,30 @@ func Run(cfg *config.Config) {
 
 	grpcServer := grpcserver.New(
 		grpcserver.Port(cfg.GRPC.Port),
-		grpcserver.Logger(logger))
+		grpcserver.Logger(logger),
+	)
 	grpc.NewRouter(grpcServer.App, authorUseCase, bookUseCase, logger)
 
 	gateway := httpserver.New(
 		logger,
 		httpserver.Port(cfg.GRPC.GatewayPort),
-		httpserver.Prefork(cfg.HTTP.UsePrefork))
+		httpserver.Prefork(cfg.HTTP.UsePrefork),
+	)
 	err = http.NewRouter(ctx, gateway.App, net.JoinHostPort(cfg.GRPC.Host, cfg.GRPC.Port))
 	if err != nil {
 		logger.Fatal("can not initialize http server", zap.Error(err))
 	}
 
+	metrics := httpserver.New(
+		logger,
+		httpserver.Port(cfg.Metrics.Port),
+		httpserver.Prefork(cfg.HTTP.UsePrefork),
+	)
+	bootstrap.InitMetrics(metrics.App)
+
 	grpcServer.Start()
 	gateway.Start()
+	metrics.Start()
 	outbox.Start(
 		ctx,
 		cfg.Outbox.Workers,
@@ -95,7 +105,10 @@ func Run(cfg *config.Config) {
 	case <-ctx.Done():
 		logger.Info("graceful shutdown")
 	case err = <-gateway.Notify():
-		logger.Error("Http server notify", zap.Error(err))
+		logger.Error("gateway http server notify", zap.Error(err))
+		cancel()
+	case err = <-metrics.Notify():
+		logger.Error("metrics http server notify", zap.Error(err))
 		cancel()
 	case err = <-grpcServer.Notify():
 		logger.Error("grpc server notify", zap.Error(err))
@@ -108,6 +121,10 @@ func Run(cfg *config.Config) {
 
 	if err = grpcServer.Shutdown(); err != nil {
 		logger.Error("grpc server shutdown error", zap.Error(err))
+	}
+
+	if err = metrics.Shutdown(); err != nil {
+		logger.Error("metrics shutdown error", zap.Error(err))
 	}
 
 	outbox.Stop()
