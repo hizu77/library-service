@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"time"
+
 	generated "github.com/hizu77/library-service/generated/api/library"
 	"github.com/hizu77/library-service/internal/controller/grpc/v1/response"
 	"go.uber.org/zap"
@@ -9,7 +11,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const getAuthorBooksEndpoint = "GetAuthorBooks"
+
 func (c *ControllerImpl) GetAuthorBooks(request *generated.GetAuthorBooksRequest, g grpc.ServerStreamingServer[generated.Book]) error {
+	start := time.Now()
+
+	EndpointRequests.
+		WithLabelValues(getAuthorBooksEndpoint).
+		Inc()
+
+	defer func() {
+		EndpointLatency.
+			WithLabelValues(getAuthorBooksEndpoint).
+			Observe(float64(time.Since(start).Seconds()))
+	}()
+
 	ctx, span := tracer.Start(g.Context(), "HandleGetAuthorBooks")
 	defer span.End()
 

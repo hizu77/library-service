@@ -8,8 +8,28 @@ import (
 	"github.com/hizu77/library-service/internal/infra/repository"
 	"github.com/hizu77/library-service/internal/infra/service"
 	"github.com/hizu77/library-service/pkg/transactor"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
+
+var (
+	outboxSuccessTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "outbox_success_total",
+		Help: "Total number of successfully processed outbox messages",
+	})
+
+	outboxFailedTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "outbox_failed_total",
+		Help: "Total number of failed outbox messages processing attempts",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(
+		outboxSuccessTotal,
+		outboxFailedTotal,
+	)
+}
 
 var _ service.Outbox = (*Impl)(nil)
 
@@ -80,6 +100,9 @@ func (i *Impl) worker(ctx context.Context,
 
 					successKeys = append(successKeys, message.IdempotencyKey)
 				}
+
+				outboxSuccessTotal.Add(float64(len(successKeys)))
+				outboxFailedTotal.Add(float64(len(messages) - len(successKeys)))
 
 				err = i.outboxRepository.MarkMessageAsProcessed(ctx, successKeys)
 				if err != nil {

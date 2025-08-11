@@ -13,6 +13,7 @@ services:
     ports:
       - "${GRPC_GATEWAY_PORT}:${GRPC_GATEWAY_PORT}"
       - "${GRPC_PORT}:${GRPC_PORT}"
+      - "${METRICS_PORT}:${METRICS_PORT}"
     networks:
       - internal
 
@@ -64,6 +65,15 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./infra/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - internal
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9099:9090"
     networks:
       - internal
 
