@@ -23,3 +23,4 @@ Library Service — это микросервис для управления б
 - **Grafana + Loki + Promtail** - мониторинг логов
 - **Swagger** - дока
 - **Jaeger** - трейсинг
+- **Grafana + Prometheus** - метрики
