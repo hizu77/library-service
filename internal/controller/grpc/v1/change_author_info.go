@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"time"
 
 	generated "github.com/hizu77/library-service/generated/api/library"
 	"github.com/hizu77/library-service/internal/controller/grpc/v1/response"
@@ -11,7 +12,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const changeAuthorInfoEndpoint = "ChangeAuthorInfo"
+
 func (c *ControllerImpl) ChangeAuthorInfo(ctx context.Context, request *generated.ChangeAuthorInfoRequest) (*generated.ChangeAuthorInfoResponse, error) {
+	start := time.Now()
+
+	EndpointRequests.
+		WithLabelValues(changeAuthorInfoEndpoint).
+		Inc()
+
+	defer func() {
+		EndpointLatency.
+			WithLabelValues(changeAuthorInfoEndpoint).
+			Observe(time.Since(start).Seconds())
+	}()
+
 	ctx, span := tracer.Start(ctx, "HandleChangeAuthorInfo")
 	defer span.End()
 

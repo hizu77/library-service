@@ -16,6 +16,7 @@ type (
 		Outbox
 		Logger
 		Tracer
+		Metrics
 	}
 
 	GRPC struct {
@@ -46,6 +47,10 @@ type (
 
 	Tracer struct {
 		URL string `env:"TRACER_URL"`
+	}
+
+	Metrics struct {
+		Port string `env:"METRICS_PORT"`
 	}
 )
 

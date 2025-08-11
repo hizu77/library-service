@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"time"
 
 	generated "github.com/hizu77/library-service/generated/api/library"
 	"github.com/hizu77/library-service/internal/controller/grpc/v1/response"
@@ -11,7 +12,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const registerAuthorEndpoint = "RegisterAuthor"
+
 func (c *ControllerImpl) RegisterAuthor(ctx context.Context, request *generated.RegisterAuthorRequest) (*generated.RegisterAuthorResponse, error) {
+	start := time.Now()
+
+	EndpointRequests.
+		WithLabelValues(registerAuthorEndpoint).
+		Inc()
+
+	defer func() {
+		EndpointLatency.
+			WithLabelValues(registerAuthorEndpoint).
+			Observe(float64(time.Since(start).Seconds()))
+	}()
+
 	ctx, span := tracer.Start(ctx, "HandleRegisterAuthor")
 	defer span.End()
 
